@@ -1,0 +1,41 @@
+.picture-list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.picture-list-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.picture-list-img {
+    width: 100%;
+    height: auto;
+    margin-right: 16px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #f8f9fa;
+}
+
+.picture-grid-view {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 14px;
+    column-gap: 0px;
+}
+
+.picture-grid-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.picture-grid-img {
+    width: 105px;
+    height: 105px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #f8f9fa;
+}

@@ -1,0 +1,17 @@
+:root {
+    --header-color: #0d0731e0;
+    --header-text-color: #c0c0c0;
+    --body-color: rgb(5, 1, 22);
+    --body-text-color: #fff;
+    --button-color: white;
+    --button-text-color: #000;
+    --card-color: #060125;
+    --card-text-color: #fff;
+    --main-font: Arial, sans-serif;
+}
+
+body {
+    background-color: var(--body-color) !important;
+    color: var(--body-text-color, #fff);
+    font-family: var(--main-font, Arial, sans-serif);
+}

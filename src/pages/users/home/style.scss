@@ -1,0 +1,86 @@
+.home-toolbar {
+    margin: 10px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+}
+
+.home-toolbar-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.home-toolbar-btn--mr {
+    margin-right: 8px;
+}
+
+.home-toolbar-btn-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    background-color: green;
+    border-radius: 50%;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+.home-toolbar-icon {
+    font-size: 1.4rem;
+}
+
+i {
+    text-align: center;
+    color: white;
+
+}
+
+.home-folder {
+    margin: 10px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.home-folder--grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+}
+
+.home-folder--list{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.home-toolbar-btn.active {
+    color: #007bff;
+}
+
+@media(max-width:550px) {
+    .home-folder--grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+}
+
+@media (min-width: 551px) and (max-width: 750px){
+    .home-folder--grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+}
+
+@media(min-width:760px) {
+    .home-folder--grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+    }
+}

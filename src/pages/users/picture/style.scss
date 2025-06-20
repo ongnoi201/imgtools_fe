@@ -1,0 +1,26 @@
+.picture-toolbar {
+    padding: 10px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.icon-upload,
+.icon-list,
+.icon-grid {
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.icon-list {
+    margin-right: 1rem;
+}
+
+.icon-list.active,
+.icon-grid.active {
+    color: #007bff;
+}
+
+.picture-container{
+    padding: 10px 30px;
+}
