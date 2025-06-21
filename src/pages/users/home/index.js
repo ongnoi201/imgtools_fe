@@ -36,7 +36,6 @@ function Home() {
                         let latestImageUrl = '';
                         if (imgRes && imgRes.status==='success' && imgRes.data && Array.isArray(imgRes.data) && imgRes.data.length > 0) {
                             count = imgRes.data.length;
-                            // Lấy phần tử cuối cùng của mảng (ảnh mới nhất)
                             const latestImg = imgRes.data[0];
                             latestImageUrl = latestImg.pictureUrl || '';
                         }

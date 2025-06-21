@@ -8,6 +8,7 @@ import imgFolder from '@assets/image-folder.png';
 import { useDispatch } from 'react-redux';
 import { setUser } from '@redux/userSlice';
 import Message from '@components/Message';
+import {  updateAvatarLocalStorage } from '@tools/function';
 
 export default function CardUser({ user, token, handleDeleteUser, handleDeleteFolder,onRoleChange  }) {
     const [folders, setFolders] = useState([]);
@@ -70,27 +71,6 @@ export default function CardUser({ user, token, handleDeleteUser, handleDeleteFo
         setLargeImageOpen(true);
     };
 
-    const handleAvatarChange = (imageUrl) => {
-        setAvt(imageUrl);
-        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-        const updatedUser = {
-            ...userInfo.user,
-            avatar: imageUrl
-        };
-        dispatch(setUser({ user: updatedUser, token }));
-        localStorage.setItem('userInfo', JSON.stringify({ user: updatedUser, token }));
-    };
-
-    const handleAvatarFrameChange = (imageUrl) => {
-        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-        const updatedUser = {
-            ...userInfo.user,
-            avatar_frame: imageUrl
-        };
-        dispatch(setUser({ user: updatedUser, token }));
-        localStorage.setItem('userInfo', JSON.stringify({ user: updatedUser, token }));
-    };
-
     const handleRoleChangeLocal = async (e) => {
         const newRole = e.target.value;
         const body = {
@@ -102,10 +82,7 @@ export default function CardUser({ user, token, handleDeleteUser, handleDeleteFo
         if (res?.status === 'success') {
             setMessage(res?.message || 'Cập nhật thành công');
             setMessageType('success');
-
-            // báo về Manage:
             onRoleChange(user._id || user.id, newRole);
-
         } else {
             setMessage(res?.message || 'Cập nhật quyền thất bại');
             setMessageType('error');
@@ -246,8 +223,10 @@ export default function CardUser({ user, token, handleDeleteUser, handleDeleteFo
                     }))}
                     currentIndex={largeImageIndex}
                     token={token}
-                    onAvatarChange={handleAvatarChange}
-                    onAvatarFrameChange={handleAvatarFrameChange}
+                    onAvatarChange={(imgUrl)=>{
+                        updateAvatarLocalStorage(imgUrl, setUser, dispatch);
+                        setAvt(imgUrl);
+                    }}
                     onDelete={(index) => {
                         setIndexImage(index);
                         setConfirmImage(true);

@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './style.scss';
-import { getUser, editUser, deleteUser } from '@services/userService';
+import { editUser, deleteUser } from '@services/userService';
 import { useSelector, useDispatch } from 'react-redux';
 import Message from '@components/Message';
-import { getAllImageByUser, getFavoriteImagesByUser } from '@services/pictureService';
 import { ROUTERS } from '@utils/router';
 import { useNavigate } from 'react-router-dom';
 import ImageGridView from '@components/CardImage/ImageGridView';
 import LargeImage from '@components/LargeImage';
 import { setUser } from '@redux/userSlice';
-
-function formatDateTime(dateString) {
-    if (!dateString) return '';
-    const d = new Date(dateString);
-    const pad = (n) => n.toString().padStart(2, '0');
-    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${pad(d.getFullYear())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
+import {
+    fetchFavoritePictures,
+    fetchPictures,
+    fetchUser,
+    formatDateTime,
+    updateAvatarFrameState,
+    updateAvatarLocalStorage
+} from '@tools/function';
 
 export default function PersonalPage() {
     const PICTURES_PAGE_SIZE = 30;
@@ -34,6 +34,7 @@ export default function PersonalPage() {
     const [favoritePictures, setFavoritePictures] = useState([]);
     const [largeImageIndex, setLargeImageIndex] = useState(0);
     const [recentLoading, setRecentLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [favoriteLoading, setFavoriteLoading] = useState(false);
     const [messageType, setMessageType] = useState('success');
     const [pictureHasMore, setPictureHasMore] = useState(true);
@@ -47,21 +48,7 @@ export default function PersonalPage() {
     });
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const res = await getUser(token);
-                if (res && res.status === 'success') {
-                    setUserData(res.data);
-                } else {
-                    setMessage(res.message);
-                    setMessageType('error');
-                }
-            } catch (error) {
-                console.log('Error fetching user data:', error);
-            }
-        };
-
-        fetchUser();
+        fetchUser(token, setUserData, setMessage, setMessageType)
     }, [token]);
 
     useEffect(() => {
@@ -74,68 +61,19 @@ export default function PersonalPage() {
 
     useEffect(() => {
         if (editMode) {
-            const fetchPictures = async () => {
-                try {
-                    const res = await getAllImageByUser(token, picturePage, PICTURES_PAGE_SIZE);
-                    if (res && res.status === 'success') {
-                        if (picturePage === 1) {
-                            setPictures(res.data);
-                        } else {
-                            setPictures(prev => [...prev, ...res.data]);
-                        }
-                        if (!res.data || res.data.length < PICTURES_PAGE_SIZE) {
-                            setPictureHasMore(false);
-                        }
-                    } else {
-                        setMessage(res.message || 'Không thể tải ảnh');
-                        setMessageType('error');
-                        setPictureHasMore(false);
-                    }
-                } catch (error) {
-                    setPictureHasMore(false);
-                }
-            };
-            fetchPictures();
+            fetchPictures(token, picturePage, PICTURES_PAGE_SIZE, setPictures, setPictureHasMore, setMessage, setMessageType, setLoading);
         }
     }, [editMode, token, picturePage]);
 
     useEffect(() => {
-        const fetchRecentPictures = async () => {
-            setRecentLoading(true);
-            try {
-                const res = await getAllImageByUser(token, 1, 30);
-                if (res && res.status === 'success') {
-                    setRecentPictures(res.data || []);
-                } else {
-                    setRecentPictures([]);
-                }
-            } catch (e) {
-                setRecentPictures([]);
-            }
-            setRecentLoading(false);
-        };
-        if (token) fetchRecentPictures();
+        if (token) fetchPictures(token, 1, 30, setRecentPictures, setPictureHasMore, setMessage, setMessageType, setRecentLoading);
     }, [token]);
 
     useEffect(() => {
         if (tab === 'favorite' && token) {
-            setFavoriteLoading(true);
-            const fetchFavoritePictures = async () => {
-                try {
-                    const res = await getFavoriteImagesByUser(token);
-                    if (res && res.status === 'success') {
-                        setFavoritePictures(res.data);
-                    } else {
-                        setFavoritePictures([]);
-                    }
-                } catch (error) {
-                    setFavoritePictures([]);
-                }
-                setFavoriteLoading(false);
-            };
-            fetchFavoritePictures();
+            fetchFavoritePictures(token, setFavoritePictures, setFavoriteLoading);
         }
-       
+
     }, [tab, token]);
 
     const handleAvatarListScroll = (e) => {
@@ -247,28 +185,9 @@ export default function PersonalPage() {
         setShowLargeImage(false);
     };
 
-    const handleAvatarChange = (avt) => {
-        const newUser = {
-            ...userData,
-            avatar: avt,
-        };
-        setUserData(newUser);
-        dispatch(setUser({ user: newUser, token }));
-        const { _id, name, username, avatar, avatar_frame, createdAt } = newUser;
-        localStorage.setItem('userInfo', JSON.stringify({ user: { _id, name, username, avatar, avatar_frame, createdAt }, token }));
-    };
-
-    const handleAvatarFrameChange = (avatarFrame) => {
-        const newUser = {
-            ...userData,
-            avatar_frame: avatarFrame,
-        };
-        setUserData(newUser);
-    };
-
     const handleLogout = () => {
         dispatch(setUser([]));
-        localStorage.clear();
+        localStorage.removeItem('userInfo');
         navigate(ROUTERS.ADMIN.LOGIN);
     };
 
@@ -317,47 +236,48 @@ export default function PersonalPage() {
                     {formatDateTime(userData.createdAt)}
                 </div>
                 {editMode ? (
-                    <>
-                        <div className="edit-fields">
-                            <input
-                                type="password"
-                                name="password"
-                                value={editFields.password}
-                                onChange={handleInputChange}
-                                placeholder="New password"
-                            />
-                        </div>
-                        <div className="avatar-select">
-                            <div className='box-title'>Chọn avatar từ ảnh của bạn</div>
-                            <div
-                                ref={avatarListRef}
-                                className='avatar-select-list'
-                                onScroll={handleAvatarListScroll}
-                            >
-                                {pictures.map(pic => (
-                                    <img
-                                        key={pic.pictureUrl}
-                                        src={pic.pictureUrl}
-                                        alt="avatar-option"
-                                        style={{
-                                            width: 48,
-                                            height: 48,
-                                            borderRadius: '50%',
-                                            border: editFields.avatar === pic.pictureUrl ? '2px solid #1976d2' : '2px solid transparent',
-                                            cursor: 'pointer',
-                                            objectFit: 'cover'
-                                        }}
-                                        onClick={() => handleAvatarSelect(pic.pictureUrl)}
-                                    />
-                                ))}
-                                {pictureHasMore && (
-                                    <div style={{ width: '100%', textAlign: 'center', padding: 8, color: '#888' }}>
-                                        Đang tải thêm...
-                                    </div>
-                                )}
+                    !loading ? (
+                        <>
+                            <div className="edit-fields">
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={editFields.password}
+                                    onChange={handleInputChange}
+                                    placeholder="New password"
+                                />
                             </div>
-                        </div>
-                    </>
+                            <div className="avatar-select">
+                                <div className='box-title'>Chọn avatar từ ảnh của bạn</div>
+                                <div
+                                    ref={avatarListRef}
+                                    className='avatar-select-list'
+                                    onScroll={handleAvatarListScroll}
+                                >
+                                    {pictures.map(pic => (
+                                        <img
+                                            key={pic.pictureUrl}
+                                            src={pic.pictureUrl}
+                                            alt="avatar-option"
+                                            style={{
+                                                width: 48,
+                                                height: 48,
+                                                borderRadius: '50%',
+                                                border: editFields.avatar === pic.pictureUrl ? '2px solid #1976d2' : '2px solid transparent',
+                                                cursor: 'pointer',
+                                                objectFit: 'cover'
+                                            }}
+                                            onClick={() => handleAvatarSelect(pic.pictureUrl)}
+                                        />
+                                    ))}
+                                    {pictureHasMore && (
+                                        <div style={{ width: '100%', textAlign: 'center', padding: 8, color: '#888' }}>
+                                            Đang tải thêm...
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </>) : (<div className='text-center mb-3'>Đang tải...</div>)
                 ) : null}
                 {message && (
                     <Message type={messageType} message={message} />
@@ -379,7 +299,7 @@ export default function PersonalPage() {
                     ) : (
                         <>
                             <button onClick={handleEditClick}>Edit</button>
-                            {userData.role === 'admin' && <button className='btn-manage' onClick={()=>navigate(ROUTERS.ADMIN.MANAGE)}>Manage</button>}
+                            {userData.role === 'admin' && <button className='btn-manage' onClick={() => navigate(ROUTERS.ADMIN.MANAGE)}>Manage</button>}
                             <button
                                 className="delete"
                                 onClick={handleDelete}
@@ -430,8 +350,8 @@ export default function PersonalPage() {
                                 currentIndex={largeImageIndex}
                                 onClose={handleCloseLargeImage}
                                 token={token}
-                                onAvatarChange={handleAvatarChange}
-                                onAvatarFrameChange={handleAvatarFrameChange}
+                                onAvatarChange={(imgUrl) => updateAvatarLocalStorage(imgUrl, setUser, dispatch)}
+                                onAvatarFrameChange={(imgUrl) => updateAvatarFrameState(imgUrl, userData, setUserData)}
                             />
                         )}
                     </div>
@@ -447,7 +367,7 @@ export default function PersonalPage() {
                                 onImageClick={handleRecentImageClick}
                             />
                         )}
-                        
+
                         {showLargeImage && (
                             <LargeImage
                                 images={favoritePictures.map(img => ({
@@ -459,8 +379,8 @@ export default function PersonalPage() {
                                 currentIndex={largeImageIndex}
                                 onClose={handleCloseLargeImage}
                                 token={token}
-                                onAvatarChange={handleAvatarChange}
-                                onAvatarFrameChange={handleAvatarFrameChange}
+                                onAvatarChange={(imgUrl) => updateAvatarLocalStorage(imgUrl, setUser, dispatch)}
+                                onAvatarFrameChange={(imgUrl) => updateAvatarFrameState(imgUrl, userData, setUserData)}
                             />
                         )}
                     </div>

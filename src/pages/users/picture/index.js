@@ -9,6 +9,7 @@ import Message from '@components/Message';
 import LargeImage from '@components/LargeImage';
 import ImageListView from '../../../components/CardImage/ImageListView';
 import ImageGridView from '../../../components/CardImage/ImageGridView';
+import {updateAvatarLocalStorage} from '@tools/function';
 
 function Picture() {
     const { folderId } = useParams();
@@ -60,7 +61,6 @@ function Picture() {
         setLoading(false);
     }, [folderId, token, currentUser]);
 
-    // Load thêm ảnh khi scroll
     const fetchMoreImages = async () => {
         if (!hasMore || loadingMore) return;
         setLoadingMore(true);
@@ -92,7 +92,7 @@ function Picture() {
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    // eslint-disable-next-line
+        // eslint-disable-next-line
     }, [loading, loadingMore, hasMore, page, folderId, token]);
 
     // Khi đổi folder hoặc user, reset lại ảnh
@@ -122,7 +122,7 @@ function Picture() {
         setMessage('');
         const idx = confirmDeleteIdx;
         const img = images[idx];
-        
+
         if (!img) {
             setConfirmDeleteIdx(null);
             return;
@@ -175,18 +175,6 @@ function Picture() {
         }
         setLoading(false);
         e.target.value = '';
-    };
-
-    // Callback khi cập nhật avatar/avatar_frame từ LargeImage
-    const handleAvatarChange = (newUser) => {
-        const { _id, name, username, avatar, avatar_frame, createdAt } = newUser;
-        dispatch(setUser({ user: newUser, token }));
-        localStorage.setItem('userInfo', JSON.stringify({ user: {_id, name, username, avatar, avatar_frame, createdAt}, token }));
-    };
-    const handleAvatarFrameChange = (newUser) => {
-        const { _id, name, username, avatar, avatar_frame, createdAt } = newUser;
-        dispatch(setUser({ user: newUser, token }));
-        localStorage.setItem('userInfo', JSON.stringify({ user: {_id, name, username, avatar, avatar_frame, createdAt}, token }));
     };
 
     return (
@@ -244,8 +232,7 @@ function Picture() {
                     onClose={handleCloseLargeImage}
                     onDelete={handleDeleteLargeImage}
                     token={token}
-                    onAvatarChange={handleAvatarChange}
-                    onAvatarFrameChange={handleAvatarFrameChange}
+                    onAvatarChange={(imgUrl)=>updateAvatarLocalStorage(imgUrl, setUser, dispatch)}
                 />
             )}
             {confirmDeleteIdx !== null && (
