@@ -54,7 +54,7 @@ function Manage() {
         if (res && res.status === 'success') {
             setMessage(res.message);
             setMessageType('success');
-            setUsers(prev => prev.filter(u => (u.id || u._id) !== idUser));
+            setUsers((prev) => prev.filter((u) => (u.id || u._id) !== idUser));
         } else {
             setMessage(res.message || 'Xóa thất bại');
             setMessageType('error');
@@ -98,50 +98,53 @@ function Manage() {
         }
     };
 
-    // --- New: update role callback ---
+    // --- Update role ---
     const updateUserRole = (userId, newRole) => {
-        setUsers(prevUsers =>
-            prevUsers.map(u =>
+        setUsers((prevUsers) =>
+            prevUsers.map((u) =>
                 (u.id || u._id) === userId ? { ...u, role: newRole } : u
             )
         );
     };
 
-    if (loading) return <Message type="loading" message="Đang tải dữ liệu..." />;
-
     return (
         <div className="manage-page">
-            {users.map(user => (
-                <CardUser
-                    key={user.id || user._id}
-                    user={user}
-                    token={token}
-                    handleDeleteUser={userDelete}
-                    handleDeleteFolder={folderDelete}
-                    onRoleChange={updateUserRole} // ✅ truyền callback xuống
-                />
-            ))}
+            <>
+                {loading ? (
+                    <div className="text-center">Đang tải dữ liệu...</div>
+                ) : (
+                    users.map((user) => (
+                        <CardUser
+                            key={user.id || user._id}
+                            user={user}
+                            token={token}
+                            handleDeleteUser={userDelete}
+                            handleDeleteFolder={folderDelete}
+                            onRoleChange={updateUserRole}
+                        />
+                    ))
+                )}
 
-            {confirmUser && (
-                <Message
-                    type="confirm"
-                    message="Bạn muốn xóa người dùng này?"
-                    onConfirm={confirmDeleteUser}
-                    duration={0}
-                    onClose={cancelDeleteUser}
-                />
-            )}
+                {confirmUser && (
+                    <Message
+                        type="confirm"
+                        message="Bạn muốn xóa người dùng này?"
+                        onConfirm={confirmDeleteUser}
+                        duration={0}
+                        onClose={cancelDeleteUser}
+                    />
+                )}
 
-            {confirmFolder && (
-                <Message
-                    type="confirm"
-                    message="Bạn muốn xóa thư mục này?"
-                    onConfirm={confirmDeleteFolder}
-                    duration={0}
-                    onClose={cancelDeleteFolder}
-                />
-            )}
-
+                {confirmFolder && (
+                    <Message
+                        type="confirm"
+                        message="Bạn muốn xóa thư mục này?"
+                        onConfirm={confirmDeleteFolder}
+                        duration={0}
+                        onClose={cancelDeleteFolder}
+                    />
+                )}
+            </>
             {message && <Message type={messageType} message={message} />}
         </div>
     );
