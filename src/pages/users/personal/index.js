@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './style.scss';
 import { editUser, deleteUser } from '@services/userService';
+import { deletePicture } from '@services/pictureService';
 import { useSelector, useDispatch } from 'react-redux';
 import Message from '@components/Message';
 import { ROUTERS } from '@utils/router';
@@ -40,6 +41,10 @@ export default function PersonalPage() {
     const [pictureHasMore, setPictureHasMore] = useState(true);
     const [showLargeImage, setShowLargeImage] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showDeleteImageConfirm, setShowDeleteImageConfirm] = useState(false);
+    const [deleteImageTab, setDeleteImageTab] = useState(null); // 'recent' | 'favorite'
+    const [deleteImageIndex, setDeleteImageIndex] = useState(null);
+    const [deletingImage, setDeletingImage] = useState(false);
     const [editFields, setEditFields] = useState({
         name: '',
         username: '',
@@ -183,6 +188,48 @@ export default function PersonalPage() {
         setIsDeleting(false);
     };
 
+    // Xử lý xóa ảnh
+    const handleImageDelete = (idx) => {
+        setDeleteImageTab(tab);
+        setDeleteImageIndex(idx);
+        setShowDeleteImageConfirm(true);
+    };
+
+    const handleConfirmImageDelete = async () => {
+        setDeletingImage(true);
+        setMessage('');
+        setMessageType('success');
+        setShowDeleteImageConfirm(false);
+        try {
+            let img;
+            if (deleteImageTab === 'recent') {
+                img = recentPictures[deleteImageIndex];
+            } else if (deleteImageTab === 'favorite') {
+                img = favoritePictures[deleteImageIndex];
+            }
+            if (!img) return;
+            const res = await deletePicture(img._id || img.id, token);
+            if (res && res.status === 'success') {
+                setMessage('Xóa ảnh thành công');
+                setMessageType('success');
+                if (deleteImageTab === 'recent') {
+                    setRecentPictures(prev => prev.filter((_, i) => i !== deleteImageIndex));
+                    setShowLargeImage(false);
+                } else if (deleteImageTab === 'favorite') {
+                    setFavoritePictures(prev => prev.filter((_, i) => i !== deleteImageIndex));
+                    setShowLargeImage(false);
+                }
+            } else {
+                setMessage(res.message || 'Có lỗi xảy ra khi xóa ảnh');
+                setMessageType('error');
+            }
+        } catch (error) {
+            setMessage('Có lỗi xảy ra khi xóa ảnh');
+            setMessageType('error');
+        }
+        setDeletingImage(false);
+    };
+
     const handleRecentImageClick = (idx) => {
         setLargeImageIndex(idx);
         setShowLargeImage(true);
@@ -302,6 +349,14 @@ export default function PersonalPage() {
                         onClose={() => setShowDeleteConfirm(false)}
                     />
                 )}
+                {showDeleteImageConfirm && (
+                    <Message
+                        type="confirm"
+                        message="Bạn có chắc chắn muốn xóa ảnh này?"
+                        onConfirm={handleConfirmImageDelete}
+                        onClose={() => setShowDeleteImageConfirm(false)}
+                    />
+                )}
                 <div className="actions">
                     {editMode ? (
                         <>
@@ -370,6 +425,7 @@ export default function PersonalPage() {
                                     })
                                 }}
                                 onAvatarFrameChange={(imgUrl) => updateAvatarFrameState(imgUrl, userData, setUserData)}
+                                onDelete={handleImageDelete}
                             />
                         )}
                     </div>
@@ -405,6 +461,7 @@ export default function PersonalPage() {
                                     })
                                 }}
                                 onAvatarFrameChange={(imgUrl) => updateAvatarFrameState(imgUrl, userData, setUserData)}
+                                onDelete={handleImageDelete}
                             />
                         )}
                     </div>
