@@ -66,13 +66,13 @@ export default function PersonalPage() {
 
     useEffect(() => {
         if (editMode && picturePage > 0) {
-            fetchPictures(token, 
-                picturePage, 
-                PICTURES_PAGE_SIZE, 
-                setPictures, 
-                setPictureHasMore, 
-                setMessage, 
-                setMessageType, 
+            fetchPictures(token,
+                picturePage,
+                PICTURES_PAGE_SIZE,
+                setPictures,
+                setPictureHasMore,
+                setMessage,
+                setMessageType,
                 setLoading);
         }
     }, [editMode, token, picturePage]);
@@ -247,7 +247,7 @@ export default function PersonalPage() {
     };
 
     console.log(loading);
-    
+
 
     if (!userData) return <Message type="loading" message="Đang tải dữ liệu người dùng..." />;
     return (
@@ -350,14 +350,7 @@ export default function PersonalPage() {
                         onClose={() => setShowDeleteConfirm(false)}
                     />
                 )}
-                {showDeleteImageConfirm && (
-                    <Message
-                        type="confirm"
-                        message="Bạn có chắc chắn muốn xóa ảnh này?"
-                        onConfirm={handleConfirmImageDelete}
-                        onClose={() => setShowDeleteImageConfirm(false)}
-                    />
-                )}
+
                 <div className="actions">
                     {editMode ? (
                         <>
@@ -468,6 +461,15 @@ export default function PersonalPage() {
                     </div>
                 )}
             </div>
+
+            {showDeleteImageConfirm && (
+                <Message
+                    type="confirm"
+                    message="Bạn có chắc chắn muốn xóa ảnh này?"
+                    onConfirm={handleConfirmImageDelete}
+                    onClose={() => setShowDeleteImageConfirm(false)}
+                />
+            )}
         </div>
     );
 }
