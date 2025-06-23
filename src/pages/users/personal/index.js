@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './style.scss';
 import { editUser, deleteUser } from '@services/userService';
-import { deletePicture } from '@services/pictureService';
+import { deleteImage } from '@services/pictureService';
 import { useSelector, useDispatch } from 'react-redux';
 import Message from '@components/Message';
 import { ROUTERS } from '@utils/router';
@@ -208,7 +208,8 @@ export default function PersonalPage() {
                 img = favoritePictures[deleteImageIndex];
             }
             if (!img) return;
-            const res = await deletePicture(img._id || img.id, token);
+            // Sử dụng đúng deleteImage từ pictureService, truyền imageId và publicId
+            const res = await deleteImage(img._id || img.id, img.puclicId || img.publicId, token);
             if (res && res.status === 'success') {
                 setMessage('Xóa ảnh thành công');
                 setMessageType('success');
