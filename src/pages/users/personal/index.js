@@ -55,13 +55,20 @@ export default function PersonalPage() {
         if (editMode) {
             setPictures([]);
             setPicturePage(1);
-            setPictureHasMore(true);
+            setPictureHasMore(false);
         }
     }, [editMode]);
 
     useEffect(() => {
-        if (editMode) {
-            fetchPictures(token, picturePage, PICTURES_PAGE_SIZE, setPictures, setPictureHasMore, setMessage, setMessageType, setLoading);
+        if (editMode && picturePage > 0) {
+            fetchPictures(token, 
+                picturePage, 
+                PICTURES_PAGE_SIZE, 
+                setPictures, 
+                setPictureHasMore, 
+                setMessage, 
+                setMessageType, 
+                setLoading);
         }
     }, [editMode, token, picturePage]);
 
@@ -191,6 +198,9 @@ export default function PersonalPage() {
         navigate(ROUTERS.ADMIN.LOGIN);
     };
 
+    console.log(loading);
+    
+
     if (!userData) return <Message type="loading" message="Đang tải dữ liệu người dùng..." />;
     return (
         <div className="personal-page">
@@ -201,13 +211,13 @@ export default function PersonalPage() {
                     onClick={handleLogout}
                 ></i>
             </div>
-            <div className="cover-img">
+            <div className="cover-img animate__animated animate__fadeIn">
                 <img src={userData.avatar_frame} alt="cover" />
                 <div className="avatar-wrapper">
-                    <img className="avatar" src={editMode ? (editFields.avatar || userData.avatar) : userData.avatar} alt="avatar" />
+                    <img className="avatar animate__animated animate__backInUp" src={editMode ? (editFields.avatar || userData.avatar) : userData.avatar} alt="avatar" />
                 </div>
             </div>
-            <div className="info">
+            <div className="info animate__animated animate__slideInLeft">
                 <div className="name">
                     {editMode ? (
                         <input
@@ -215,6 +225,7 @@ export default function PersonalPage() {
                             name="name"
                             value={editFields.name}
                             onChange={handleInputChange}
+                            className='animate__animated animate__fadeInDown'
                         />
                     ) : (
                         userData.name
@@ -227,6 +238,7 @@ export default function PersonalPage() {
                             name="username"
                             value={editFields.username}
                             onChange={handleInputChange}
+                            className='animate__animated animate__fadeInDown'
                         />
                     ) : (
                         <>@{userData.username}</>
@@ -236,48 +248,48 @@ export default function PersonalPage() {
                     {formatDateTime(userData.createdAt)}
                 </div>
                 {editMode ? (
-                    !loading ? (
-                        <>
-                            <div className="edit-fields">
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={editFields.password}
-                                    onChange={handleInputChange}
-                                    placeholder="New password"
-                                />
+                    <>
+                        <div className="edit-fields">
+                            <input
+                                type="password"
+                                name="password"
+                                value={editFields.password}
+                                onChange={handleInputChange}
+                                placeholder="New password"
+                                className='animate__animated animate__fadeInDown'
+                            />
+                        </div>
+                        <div className="avatar-select">
+                            <div className='box-title'>Chọn avatar từ ảnh của bạn</div>
+                            <div
+                                ref={avatarListRef}
+                                className='avatar-select-list animate__animated animate__fadeInDown'
+                                onScroll={handleAvatarListScroll}
+                            >
+                                {pictures.map(pic => (
+                                    <img
+                                        key={pic._id}
+                                        src={pic.pictureUrl}
+                                        alt="avatar-option"
+                                        style={{
+                                            width: 48,
+                                            height: 48,
+                                            borderRadius: '50%',
+                                            border: editFields.avatar === pic.pictureUrl ? '2px solid #1976d2' : '2px solid transparent',
+                                            cursor: 'pointer',
+                                            objectFit: 'cover'
+                                        }}
+                                        onClick={() => handleAvatarSelect(pic.pictureUrl)}
+                                    />
+                                ))}
+                                {pictureHasMore && (
+                                    <div style={{ width: '100%', textAlign: 'center', padding: 8, color: '#888' }}>
+                                        Đang tải thêm...
+                                    </div>
+                                )}
                             </div>
-                            <div className="avatar-select">
-                                <div className='box-title'>Chọn avatar từ ảnh của bạn</div>
-                                <div
-                                    ref={avatarListRef}
-                                    className='avatar-select-list'
-                                    onScroll={handleAvatarListScroll}
-                                >
-                                    {pictures.map(pic => (
-                                        <img
-                                            key={pic.pictureUrl}
-                                            src={pic.pictureUrl}
-                                            alt="avatar-option"
-                                            style={{
-                                                width: 48,
-                                                height: 48,
-                                                borderRadius: '50%',
-                                                border: editFields.avatar === pic.pictureUrl ? '2px solid #1976d2' : '2px solid transparent',
-                                                cursor: 'pointer',
-                                                objectFit: 'cover'
-                                            }}
-                                            onClick={() => handleAvatarSelect(pic.pictureUrl)}
-                                        />
-                                    ))}
-                                    {pictureHasMore && (
-                                        <div style={{ width: '100%', textAlign: 'center', padding: 8, color: '#888' }}>
-                                            Đang tải thêm...
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </>) : (<div className='text-center mb-3'>Đang tải...</div>)
+                        </div>
+                    </>
                 ) : null}
                 {message && (
                     <Message type={messageType} message={message} />
@@ -350,7 +362,13 @@ export default function PersonalPage() {
                                 currentIndex={largeImageIndex}
                                 onClose={handleCloseLargeImage}
                                 token={token}
-                                onAvatarChange={(imgUrl) => updateAvatarLocalStorage(imgUrl, setUser, dispatch)}
+                                onAvatarChange={(imgUrl) => {
+                                    updateAvatarLocalStorage(imgUrl, setUser, dispatch);
+                                    setUserData({
+                                        ...userData,
+                                        avatar: imgUrl
+                                    })
+                                }}
                                 onAvatarFrameChange={(imgUrl) => updateAvatarFrameState(imgUrl, userData, setUserData)}
                             />
                         )}
@@ -379,7 +397,13 @@ export default function PersonalPage() {
                                 currentIndex={largeImageIndex}
                                 onClose={handleCloseLargeImage}
                                 token={token}
-                                onAvatarChange={(imgUrl) => updateAvatarLocalStorage(imgUrl, setUser, dispatch)}
+                                onAvatarChange={(imgUrl) => {
+                                    updateAvatarLocalStorage(imgUrl, setUser, dispatch);
+                                    setUserData({
+                                        ...userData,
+                                        avatar: imgUrl
+                                    })
+                                }}
                                 onAvatarFrameChange={(imgUrl) => updateAvatarFrameState(imgUrl, userData, setUserData)}
                             />
                         )}

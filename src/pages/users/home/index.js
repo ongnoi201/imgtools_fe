@@ -176,7 +176,7 @@ function Home() {
 
     return (
         <div>
-            <div className="home-toolbar">
+            <div className="home-toolbar animate__animated animate__backInLeft">
                 <button className="home-toolbar-btn-add" onClick={handleAddFolder}>
                     <i className="bi bi-plus home-toolbar-icon"></i>
                 </button>
@@ -195,6 +195,9 @@ function Home() {
                     </button>
                 </div>
             </div>
+            {loading && (
+                <div className="text-center mt-3">Đang tải...</div>
+            )}
             <div className={`home-folder${type === 'grid' ? ' home-folder--grid' : ' home-folder--list'}`}>
                 {showAdd && (
                     <Folder
@@ -236,9 +239,6 @@ function Home() {
                     duration={0}
                     onClose={handleCancelDelete}
                 />
-            )}
-            {loading && (
-                <Message type='loading' message='Đang tải...'/>
             )}
         </div>
     )

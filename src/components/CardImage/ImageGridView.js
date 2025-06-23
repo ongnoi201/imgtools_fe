@@ -5,7 +5,7 @@ function ImageGridView({ images, onImageClick }) {
     return (
         <div className="picture-grid-view">
             {images.map((img, idx) => (
-                <div className="picture-grid-item" key={img._id || img.id}>
+                <div className="picture-grid-item animate__animated animate__zoomIn" key={img._id || img.id}>
                     <img
                         src={img.pictureUrl}
                         alt={img.puclicId}

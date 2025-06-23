@@ -54,12 +54,20 @@ export const fetchPictures = async (token, picturePage, PICTURES_PAGE_SIZE, setP
     try {
         const res = await getAllImageByUser(token, picturePage, PICTURES_PAGE_SIZE);
         if (res && res.status === 'success') {
-            if (picturePage === 1) {
-                setPictures(res.data);
-            } else {
-                setPictures(prev => [...prev, ...res.data]);
-            }
-            if (!res.data || res.data.length < PICTURES_PAGE_SIZE) {
+            // Số ảnh đã có
+            let loadedCount = 0;
+            setPictures(prev => {
+                let newPics;
+                if (picturePage === 1) {
+                    newPics = res.data;
+                } else {
+                    newPics = [...prev, ...res.data];
+                }
+                loadedCount = newPics.length;
+                return newPics;
+            });
+            // Nếu tổng số ảnh đã load >= tổng số ảnh trên server, dừng load thêm
+            if (!res.data || res.data.length < PICTURES_PAGE_SIZE || (res.total && loadedCount >= res.total)) {
                 setPictureHasMore(false);
             }
         } else {

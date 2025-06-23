@@ -35,3 +35,12 @@ if (saved) {
         if (settings.fontFamily) document.documentElement.style.setProperty('--main-font', settings.fontFamily);
     } catch (e) { }
 }
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw-img-cache.js')
+      .then(reg => console.log('[SW] Registered'))
+      .catch(err => console.error('[SW] Register error:', err));
+  });
+}

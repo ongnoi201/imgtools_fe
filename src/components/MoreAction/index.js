@@ -2,7 +2,7 @@ import React from 'react';
 import './style.scss';
 
 const MoreAction = ({ onEdit, onDelete, folderId }) => (
-  <div className="more-action-box">
+  <div className="more-action-box animate__animated animate__bounceIn">
     <button
       className="action-btn"
       onClick={() => onEdit && onEdit(folderId)}

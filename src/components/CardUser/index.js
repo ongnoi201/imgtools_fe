@@ -140,10 +140,11 @@ export default function CardUser({ user, token, handleDeleteUser, handleDeleteFo
     };
 
     if (!user) return null;
-    if (loading) return <div className="card-user-box">Đang tải...</div>;
+    console.log(loading);
+    
 
     return (
-        <div className="card-user-box">
+        <div className="card-user-box animate__animated animate__slideInDown">
             <div className="user-info-row">
                 <img className="avatar" src={avt || user.avatar} alt="avatar" />
                 <div className="user-info">
@@ -171,7 +172,7 @@ export default function CardUser({ user, token, handleDeleteUser, handleDeleteFo
                 folders.length === 0 ? (
                     <div className='text-center'>Không có thư mục</div>
                 ) : (
-                    <div className="folders-list">
+                    <div className="folders-list animate__animated animate__slideInLeft">
                         {folders.map(folder => {
                             const folderId = folder.id || folder._id;
                             const images = imagesByFolder[folderId] || [];
@@ -197,7 +198,7 @@ export default function CardUser({ user, token, handleDeleteUser, handleDeleteFo
                                                 {images.map((img, idx, arr) => (
                                                     <img
                                                         key={img.id || img._id}
-                                                        className="folder-img-thumb"
+                                                        className="folder-img-thumb animate__animated animate__zoomIn"
                                                         src={img.pictureUrl}
                                                         alt=""
                                                         onClick={() => handleImageClick(arr, idx)}

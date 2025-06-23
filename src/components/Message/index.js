@@ -21,7 +21,7 @@ const Message = ({ type = 'success', message, onConfirm, duration = 3000, onClos
 
     if (!visible) return null;
     return (
-        <div className={`message message--${type}`}>
+        <div className={`message message--${type} animate__animated animate__zoomIn`}>
             <div className={`message__content${type === 'confirm' ? ' message__content--confirm' : ''}`}>{message}</div>
             {type === 'confirm' && (
                 <div className="message__actions message__actions--confirm">

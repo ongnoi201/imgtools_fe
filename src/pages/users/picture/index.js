@@ -207,16 +207,16 @@ function Picture() {
             </div>
             <div className='picture-container'>
                 {loading && (
-                    <Message type='loading' message='Đang tải ảnh...' />
+                    <div className='text-center mt-3'>Đang tải ảnh...</div>
                 )}
                 {viewMode === 'list' ? (
                     <ImageListView images={images} onImageClick={handleImageClick} />
                 ) : (
                     <ImageGridView images={images} onImageClick={handleImageClick} />
                 )}
-                {loadingMore && !loading && <Message type='loading' message='Đang tải thêm ảnh...' />}
+                {loadingMore && !loading && <div className='text-center mt-3'>Đang tải thêm ảnh...</div>}
                 {!hasMore && !loading && images.length > 0 && (
-                    <div style={{ textAlign: 'center', color: '#888', margin: '16px 0' }}>Đã tải hết ảnh</div>
+                    <div className='text-center mt-3'>Đã tải hết ảnh</div>
                 )}
                 {message && (<Message type={typeMessage} message={message} />)}
             </div>

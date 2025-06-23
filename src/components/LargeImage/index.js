@@ -151,7 +151,7 @@ export default function LargeImage({
     };
 
     return (
-        <div className={`large-image-container${showHeaderFooter ? ' show-header-footer' : ''}`}>
+        <div className={`large-image-container${showHeaderFooter ? ' show-header-footer' : ''} animate__animated animate__zoomIn`}>
             {showHeaderFooter && (
                 <div className="large-image-header" onClick={()=>setShowMoreModal(false)}>
                     <button className="btn text-dark" onClick={onClose}>
@@ -176,7 +176,7 @@ export default function LargeImage({
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
             >
-                <img src={images[index]?.url} alt={`img-${index}`} />
+                <img src={images[index]?.url} alt={`img-${index}`}/>
             </div>
             {showHeaderFooter && (
                 <div className="large-image-footer">
@@ -188,7 +188,7 @@ export default function LargeImage({
                         title={images[index]?.favorite === 1 ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
                     >
                         <i
-                            className={`bi ${images[index]?.favorite === 1 ? 'bi-heart-fill text-danger' : 'bi-heart text-danger'}`}
+                            className={`animate__animated bi ${images[index]?.favorite === 1 ? 'bi-heart-fill text-danger animate__bounceIn' : 'bi-heart text-danger animate__bounceIn'}`}
                             style={{ fontSize: 22 }}
                         ></i>
                     </button>
@@ -207,7 +207,7 @@ export default function LargeImage({
                 </div>
             )}
             {showMoreModal && (
-                <div className="large-image-more-modal">
+                <div className="large-image-more-modal animate__animated animate__bounceIn">
                     <div
                         className="large-image-more-modal-content"
                         onClick={e => e.stopPropagation()}

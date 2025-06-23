@@ -28,11 +28,9 @@ const Folder = ({
     setEditFolderId,
     ...props
 }) => {
-    // Quản lý state type nội bộ
     const [type, setType] = useState(propType);
     useEffect(() => { setType(propType); }, [propType]);
 
-    // Nếu có prop isEdit thì override trạng thái edit
     const isEdit = isEditProp || type === 'edit' || type === 'add';
     const [open, setOpen] = useState(false);
     const dotsRef = useRef(null);
@@ -58,7 +56,7 @@ const Folder = ({
     return (
         <div className={`folder-comp ${typeShow} ${type}`}>
             {typeShow === 'list' ? (
-                <div className="folder-list">
+                <div className="folder-list animate__animated animate__zoomIn">
                     <img className="folder-img" src={img} alt="folder" onClick={()=>navigte(ROUTERS.USER.PICTURE(folderId))}/>
                     <div className="folder-info">
                         {isEdit ? (
@@ -105,7 +103,7 @@ const Folder = ({
                     </span>
                 </div>
             ) : (
-                <div className="folder-grid">
+                <div className="folder-grid animate__animated animate__bounceIn">
                     <div className="folder-img-wrapper" style={{ position: 'relative' }}>
                         <img className="folder-img" src={img} alt="folder" onClick={()=>navigte(ROUTERS.USER.PICTURE(folderId))} />
                         <span ref={dotsRef}>
