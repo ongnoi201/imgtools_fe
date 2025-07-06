@@ -97,7 +97,7 @@ function Setting() {
                 <button className="btn-reset-setting" onClick={handleReset}>
                     Đặt lại mặc định
                 </button>
-                <button className="btn-reset-setting" onClick={handleLogout}>
+                <button className="btn btn-warning" onClick={handleLogout}>
                     Đặt lại mặc định và đăng xuất
                 </button>
             </div>
