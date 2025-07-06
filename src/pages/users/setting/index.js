@@ -14,14 +14,14 @@ const defaultSettings = {
     cardTextColor: '#ffffff',
     fontFamily: 'Arial, sans-serif',
 };
-const dispatch = useDispatch();
-const navigate = useNavigate();
 
 function Setting() {
     const [settings, setSettings] = useState(() => {
         const saved = localStorage.getItem('siteSettings');
         return saved ? JSON.parse(saved) : defaultSettings;
     });
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
 
     useEffect(() => {
