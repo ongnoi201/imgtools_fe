@@ -1,7 +1,5 @@
 import React, { use, useEffect, useState } from 'react';
 import './style.scss';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 const defaultSettings = {
     headerColor: '#0d0731f3',
@@ -20,9 +18,6 @@ function Setting() {
         const saved = localStorage.getItem('siteSettings');
         return saved ? JSON.parse(saved) : defaultSettings;
     });
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-
 
     useEffect(() => {
         document.documentElement.style.setProperty('--header-color', settings.headerColor);
@@ -47,11 +42,6 @@ function Setting() {
     };
 
     const handleReset = () => {
-        setSettings(defaultSettings);
-        localStorage.removeItem('siteSettings');
-    };
-
-    const handleLogout = () => {
         setSettings(defaultSettings);
         localStorage.clear();
     };
@@ -94,9 +84,6 @@ function Setting() {
                 </label>
                 <button className="btn-reset-setting" onClick={handleReset}>
                     Đặt lại mặc định
-                </button>
-                <button className="btn btn-warning" onClick={handleLogout}>
-                    Đặt lại mặc định và đăng xuất
                 </button>
             </div>
         </div>
