@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import './style.scss';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const defaultSettings = {
     headerColor: '#0d0731f3',
@@ -12,6 +14,8 @@ const defaultSettings = {
     cardTextColor: '#ffffff',
     fontFamily: 'Arial, sans-serif',
 };
+const dispatch = useDispatch();
+const navigate = useNavigate();
 
 function Setting() {
     const [settings, setSettings] = useState(() => {
@@ -45,6 +49,13 @@ function Setting() {
     const handleReset = () => {
         setSettings(defaultSettings);
         localStorage.removeItem('siteSettings');
+    };
+
+    const handleLogout = () => {
+        setSettings(defaultSettings);
+        localStorage.clear();
+        dispatch({ type: 'LOGOUT' });
+        navigate('/login');
     };
 
     return (
