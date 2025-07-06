@@ -54,7 +54,6 @@ function Setting() {
     const handleLogout = () => {
         setSettings(defaultSettings);
         localStorage.clear();
-        dispatch({ type: 'LOGOUT' });
         navigate('/login');
     };
 
